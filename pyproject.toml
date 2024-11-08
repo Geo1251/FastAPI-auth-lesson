@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [ "missing-module-docstring", "missing-function-docstring", "missing-class-docstring", "too-few-public-methods" ]
