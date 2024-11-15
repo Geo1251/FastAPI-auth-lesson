@@ -63,4 +63,4 @@ async def get_current_user(
     user = await get_user(session, username=token_data.username)
     if user is None:
         raise credentials_exception
-    return User
+    return user
