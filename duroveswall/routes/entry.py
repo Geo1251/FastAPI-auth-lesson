@@ -8,18 +8,17 @@ from sqlalchemy.sql.functions import current_user
 from starlette import status
 
 from duroveswall.db import get_session
-from duroveswall.routes.auth import security
 from duroveswall.schemas import Entry as EntrySchema
 from duroveswall.schemas import EntryCreateRequest, EntryUpdateRequest
 from duroveswall.utils import entry as utils
 from duroveswall.utils import user as user_utils
-from duroveswall.utils.user import authenticate_user
+from duroveswall.utils.user import authenticate_user, get_current_user
+from duroveswall.models import User
 
 api_router = APIRouter(
     prefix="/entry",
     tags=["Entry"],
 )
-
 
 @api_router.post(
     "",
@@ -36,17 +35,10 @@ api_router = APIRouter(
 )
 async def create(
     _: Request,
-    credentials: Annotated[HTTPBasicCredentials, Depends(security)],
     entry_instance: EntryCreateRequest = Body(...),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    current_user = await authenticate_user(session, credentials.username, credentials.password)
-    if not current_user:
-        raise HTTPException (
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     user_wall = await user_utils.get_user(session, entry_instance.user_wall_username)
     if user_wall:
         return await utils.create_entry(session, current_user, user_wall.id, entry_instance)
