@@ -62,22 +62,26 @@ async def make_user(client, username, password, email=None):
         raise Exception(reg_res.status_code, reg_res.content)
     return username, password
 
+async def make_access_token(client, username="user", password="hackme", email="test@ya.ru"):
+    await make_user(client, username, password, email)
+    auth_data = {"username": username, "password":password}
+    auth_res = await client.post(url="/user/authentication", data=auth_data)
+    return auth_res.json()["access_token"]
 
 @pytest.fixture(name="authed_headers")
 async def authed_headers(client):
-    # FIXME: your code here
-    pass
-
+    token = await make_access_token(client)
+    yield {"Authorization": "Bearer" + token}
 
 @pytest.fixture(name="another_authed_headers")
 async def another_authed_headers(client):
-    # FIXME: your code here
-    pass
+    token = await make_access_token(client, username="user2")
+    yield {"Authorization": "Bearer" + token}
 
 @pytest.fixture(name="unused_authed_headers")
 async def unused_authed_headers(client):
-    # FIXME: your code here
-    pass
+    token = await make_access_token(client, username="user3")
+    yield {"Authorization": "Bearer" + token}
 
 @pytest.fixture(name="unauthed_headers")
 async def unauthed_headers(client):

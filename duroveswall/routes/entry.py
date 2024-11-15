@@ -14,6 +14,7 @@ from duroveswall.utils import entry as utils
 from duroveswall.utils import user as user_utils
 from duroveswall.utils.user import authenticate_user, get_current_user
 from duroveswall.models import User
+from duroveswall.utils.entry import authorize_user_edit
 
 api_router = APIRouter(
     prefix="/entry",
@@ -91,7 +92,11 @@ async def update(
     entry_content: EntryUpdateRequest = Body(...),
     session: AsyncSession = Depends(get_session),
 ):
-    # FIXME: your code here
+    if not await authorize_user_edit(session, entry_id, entry_content):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized"
+        ) 
     entry = await utils.update_entry(session, entry_id, entry_content)
     if entry:
         return EntrySchema.model_validate(entry)
@@ -99,7 +104,6 @@ async def update(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Entry with this id not found",
     )
-
 
 @api_router.delete(
     "/{entry_id}",
@@ -114,12 +118,18 @@ async def update(
         },
     },
 )
+
 async def delete(
     _: Request,
     entry_id: UUID4 = Path(...),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    # FIXME: your code here
+    if not await authorize_user_edit(session, UUID4(current_user.id), entry_id):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",  
+        )
     success = await utils.delete_entry(session, entry_id)
     if success:
         return None
