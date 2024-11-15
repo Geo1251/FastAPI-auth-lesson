@@ -90,6 +90,7 @@ async def update(
     _: Request,
     entry_id: UUID4 = Path(...),
     entry_content: EntryUpdateRequest = Body(...),
+    current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     if not await authorize_user_edit(session, UUID4(current_user.id), entry_id):
