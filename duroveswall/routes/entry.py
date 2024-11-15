@@ -92,7 +92,7 @@ async def update(
     entry_content: EntryUpdateRequest = Body(...),
     session: AsyncSession = Depends(get_session),
 ):
-    if not await authorize_user_edit(session, entry_id, entry_content):
+    if not await authorize_user_edit(session, UUID4(current_user.id), entry_id):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized"

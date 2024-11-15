@@ -71,17 +71,17 @@ async def make_access_token(client, username="user", password="hackme", email="t
 @pytest.fixture(name="authed_headers")
 async def authed_headers(client):
     token = await make_access_token(client)
-    yield {"Authorization": "Bearer" + token}
+    yield {"Authorization": "Bearer " + token}
 
 @pytest.fixture(name="another_authed_headers")
 async def another_authed_headers(client):
     token = await make_access_token(client, username="user2")
-    yield {"Authorization": "Bearer" + token}
+    yield {"Authorization": "Bearer " + token}
 
 @pytest.fixture(name="unused_authed_headers")
 async def unused_authed_headers(client):
     token = await make_access_token(client, username="user3")
-    yield {"Authorization": "Bearer" + token}
+    yield {"Authorization": "Bearer " + token}
 
 @pytest.fixture(name="unauthed_headers")
 async def unauthed_headers(client):
